@@ -53,6 +53,8 @@ const languages = {
   khmer: [`អ្នក​សុខសប្បាយ​ទេ`, 15],
   thai: [`สบายดีไหม`, 9],
   lao: [`ສະ​ບາຍ​ດີ​ບໍ?`, 9],
+  chinese1 : [`你好吗? ✨😊`, 3], // new test case added chinese characters with emoji 
+  chinese2 : [`你好吗?!~`, 3], // new test case added chinese characters with symbols
 };
 for (let lang in languages) {
   test(`${lang} text`, () => {
