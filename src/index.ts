@@ -51,25 +51,31 @@ for (const range of UNICODE_RANGES) {
   insertRangeIntoMap(range[0], range[1]);
 }
 
+// Removes emojis and symbols, adds spaces after any language characters, and normalizes whitespace
+function removeEmojiAndSymbols(str: string): string {
+  return str.replace(/\p{Emoji}|\p{Symbol}|[*&^%$#@!_+=\[\]{}|\\<>~]/gu, ' ')  // Remove emojis and symbols
+            .replace(/(\p{Script=Han})/gu, '$1 ')  // Add space after each Chinese character
+            .replace(/\s+/g, ' ')  // Replace multiple spaces with single space
+            .trim();  // Trim leading and trailing spaces
+}
+
 export function countWords(str: string) {
+  // Preprocess the string
+  const processedStr = removeEmojiAndSymbols(str);
+
+  // Now count words as before
   let count = 0;
   let shouldCount = false;
-
-  for (let i = 0; i < str.length; i++) {
-    const charCode = str.charCodeAt(i);
-    const byteIndex = (charCode / BYTE_SIZE) | 0;
+  for (let i = 0; i < processedStr.length; i++) {
+    const charCode = processedStr.charCodeAt(i);
+    const byteIndex = Math.floor(charCode / BYTE_SIZE);
     const bitIndex = charCode % BYTE_SIZE;
     const byteAtIndex = BITMAP[byteIndex];
     const isMatch = ((byteAtIndex >> bitIndex) & 1) === 1;
-
-    // 255 means this is probably a Unicode range match in which case
-    // we should ignore the value of shouldCount
-    if (isMatch && (shouldCount || byteAtIndex === 255)) count++;
+    count += Number(isMatch && (shouldCount || byteAtIndex === 255));
     shouldCount = !isMatch;
   }
-
-  if (shouldCount) count++;
-
+  count += Number(shouldCount);
   return count;
 }
 
